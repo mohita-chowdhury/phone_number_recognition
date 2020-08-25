@@ -11,7 +11,7 @@ The directory contains the following folders:
 
 * `speech_rec_pytorch/`: contains files to train a digit recognition model from scratch
 
-* `pretrained_model/`: contains pretrained model. Replace with the model you want to use
+* `pretrained_model/`: contains pretrained model. Replace with the model you want to use. I am using `speech_net_aug.pth.tar`.
 
 * `static/` and `templates/`: For the Web App part
 
