@@ -14,10 +14,12 @@ import librosa.display
 import librosa.feature
 import matplotlib.pyplot as plt
 import numpy as np
-warnings.filterwarnings("ignore") 
 
-PATH = '/scratch/shared/nfs1/mohita/ufonia/speech_rec_pytorch/saved/models/speech_net_aug.pth.tar'
-device = torch.device("cuda")
+warnings.filterwarnings("ignore")
+
+
+PATH = 'pretrained_model/speech_net_aug.pth.tar'
+# device = torch.device("cuda")
 
 def silence_based_conversion(path, n, sil_thresh):  
     print([path, n])
@@ -29,13 +31,18 @@ def silence_based_conversion(path, n, sil_thresh):
         silence_thresh = sil_thresh
     ) 
 
+    try:
+        os.system('rm -rf data/audio/' + n)
+    except:
+        pass
+
     try: 
-        os.mkdir('/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/audio/'+ n) 
+        os.mkdir('data/audio/'+ n) 
     except(FileExistsError): 
         pass
 
 
-    os.chdir('/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/audio/' + n) 
+    os.chdir('data/audio/' + n) 
     i = 0
     for chunk in chunks: 
             
@@ -57,7 +64,17 @@ def extract_mfcc(in_path, file, fmax, nMel, n):
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
-    plt.savefig('/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/images/' + n + '/' + file[:-3] + 'png', bbox_inches='tight', pad_inches=-0.1)
+
+    try:
+        os.system('rm -rf data/images/' + n)
+    except:
+        pass
+    
+    try: 
+        os.mkdir('data/images/'+ n) 
+    except(FileExistsError): 
+        pass
+    plt.savefig('data/images/' + n + '/' + file[:-3] + 'png', bbox_inches='tight', pad_inches=-0.1)
     
     plt.close()   
     return
@@ -70,7 +87,7 @@ def print_number(folder, model):
         img = cv2.imread(folder + '/' + file)
         img = torch.from_numpy(img)
         img = torch.unsqueeze(img, 0)
-        img = img.to(device)
+        # img = img.to(device)
         outputs = model(img)
         _, predicted = torch.max(torch.unsqueeze(outputs.data,0), 1)
         phone_number[int(file.split("_")[1].split(".")[0])] =predicted.item()
@@ -87,25 +104,31 @@ if __name__ == '__main__':
     phone_number=args.phone_number
     sil_thresh=args.sil_thresh
 
-    path_wav = '/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/audio/' + phone_number + '.wav'
-    silence_based_conversion(path_wav, phone_number, -1*sil_thresh) 
+    ## FROM WEB APP
+    path_wav = './data/audio/' + phone_number + '.wav'
 
+    silence_based_conversion(path_wav, phone_number, -1*sil_thresh) 
+    print('Audio split successful...')
 
     
-    chunks_path = '/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/audio/' + phone_number + '/'
+    chunks_path = '/home/mohiitaa/ufonia/phone_number_identification_from_speech/data/audio/' + phone_number + '/'
+    # import pdb; pdb.set_trace()
+    print(os.listdir(chunks_path))
     for wavfile in os.listdir(chunks_path):
         S = extract_mfcc(chunks_path, wavfile, 8000, 256, phone_number)
 
-
-    spec_path = '/users/mohita/nfs1_mohita/ufonia/phone_number_identification_from_speech/data/images/' + phone_number
+    print('MFCC extracted...')
+    spec_path = '/home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/' + phone_number
     speech_model = model.SpeechConv()
-    speech_model.to(device)
+    # speech_model.to(device)
     speech_model.load_state_dict(torch.load(PATH))
     print_number = print_number(spec_path, speech_model)
-
-
+    print('Pretrained speech model loaded...')
+    print('Loading predictions...')
     od = collections.OrderedDict(sorted(print_number.items()))
     output = []
+    output2 = ''
     for k, v in od.items():
-        output.append((k,v))
-    print(output)
+        output.append(v)
+        output2 += str(v)
+    print(output2)

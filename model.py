@@ -12,7 +12,6 @@ class Flatten(nn.Module):
         super(Flatten,self).__init__()
  
    def forward(self, x):
-        # return x.view(x.size()[0], -1)
         return torch.flatten(x)
 
 class SpeechConv(nn.Module):
@@ -48,13 +47,7 @@ class SpeechConv(nn.Module):
 
 						nn.Conv2d(128, 64, kernel_size = (1,1), stride = (1,1), bias = False),
 						nn.ReLU(inplace = False)
-						# nn.MaxPool2d(kernel_size=(3, 3), stride = (2,2))
-						# nn.BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True),
 
-						# nn.Conv2d(128, 256, kernel_size = (3,3), stride = (1,1), bias = False),
-						# nn.ReLU(inplace = False),
-						# nn.MaxPool2d(kernel_size=(3, 3), stride = (2,2))
-						# # nn.BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
 						)
 		self.Project = nn.Sequential(
 						nn.Linear(1024, 64),

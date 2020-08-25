@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <title>Ufonia</title>
+  </head>
+  <body style="background-color: #12146F;">
+    <div class="card-group rounded-0" style="flex-direction: column; position: absolute; transform: translate(-50%, -50%); top: 50%; left: 50%; margin: 0;">
+      <div class="card col" style="width: 35rem;">
+        <div class="card" style="flex-direction: row; align-self: center; border: none;">
+            <img class="img-thumbnail" src="{{url_for('static', filename='ufonia.png')}}" style="height: 100px; width: 100px;" alt="image">
+            <h5 class="card-title" style="color: #12146F; margin: 15px;">Contact Number<br>Recognition<br>Service</h5>
+        </div>
+      </div>
+      <div class="card col" style="width: 35rem; margin-top: 10px; margin-bottom: 10px; padding: 5px;">
+        <button id="mic" class="material-icons btn" style="font-size:48px;color:black;">mic</button>
+      </div>
+      <div class="card col" style="width: 35rem;">
+        <div class="card-body">
+          <p class="card-text" style="text-align: center;">The recognised number is ...</p>
+          <div style="background-color: black; margin-left: 10rem; margin-right: 10rem;">
+              <p id="number" class="card-text" style="color: greenyellow; text-align: center;">...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  </body>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+
+  <script type="text/javascript">
+  
+    URL = window.URL || window.webkitURL;
+    var gumStream;
+    var rec;
+    var input;
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioContext = new AudioContext;
+
+    function startRecording() {
+        console.log("start recording");
+        var constraints = { audio: true, video:false }
+
+        navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
+        console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+
+        /*
+            create an audio context after getUserMedia is called
+            sampleRate might change after getUserMedia is called, like it does on macOS when recording through AirPods
+            the sampleRate defaults to the one set in your OS for your playback device
+
+        */
+        audioContext = new AudioContext();
+
+        /*  assign to gumStream for later use  */
+        gumStream = stream;
+        
+        /* use the stream */
+        input = audioContext.createMediaStreamSource(stream);
+
+        /* 
+            Create the Recorder object and configure to record mono sound (1 channel)
+            Recording 2 channels  will double the file size
+        */
+        rec = new Recorder(input,{numChannels:1})
+
+        //start the recording process
+        rec.record()
+
+        console.log("Recording started");
+
+        }).catch(function(err) {
+            //enable the record button if getUserMedia() fails
+            console.log("Recorder error")
+        });
+    }
+
+    function stopRecording() {
+        console.log("stop recording");
+        
+        //tell the recorder to stop the recording
+        rec.stop();
+
+        //stop microphone access
+        gumStream.getAudioTracks()[0].stop();
+
+        //create the wav blob and pass it on to createDownloadLink
+        rec.exportWAV(createDownloadLink);
+    }
+
+    function createDownloadLink(blob) {
+        var fd = new FormData();
+        fd.append('fname', 'test.wav');
+        fd.append('data', blob);
+        $.ajax({
+            type: 'POST',
+            url: '/upload',
+            data: fd,
+            processData: false,
+            contentType: false
+        }).done(function(data) {
+                console.log(data);
+                const number = document.getElementById('number');
+                number.textContent = data;
+        });
+    }
+
+    let toggle = false;
+    const mic = document.getElementById('mic');
+
+    mic.addEventListener('click', function() {
+        if(toggle) {
+        toggle = false;
+        mic.style.color="black";
+        stopRecording();
+        } else {
+        toggle = true;
+        mic.style.color="red";
+        const number = document.getElementById('number');
+        number.textContent = "...";
+        startRecording();
+        }
+    });
+
+  </script>
+
+</html>
