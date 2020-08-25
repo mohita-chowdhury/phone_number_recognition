@@ -29,6 +29,7 @@ The directory contains the following folders:
 Then navigate to `http://127.0.0.1:5000/`.
 
 **To run a simple demo**
+
 `python demo.py -pn <file_name from audio/>`
 
 ### Demo
