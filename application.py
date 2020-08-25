@@ -27,9 +27,14 @@ def upload_func():
 
     # import pdb; pdb.set_trace()
     print(os.listdir(chunks_path))
+
+    os.system('rm -rf /home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/' + 'test')
+    print('previous items deleted')
+
     for wavfile in os.listdir(chunks_path):
         S = ml_model.extract_mfcc(chunks_path, wavfile, 8000, 256, 'test')
 
+    print(os.listdir('/home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/test'))
     print('MFCC extracted...')
     spec_path = '/home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/' + 'test'
     speech_model = model.SpeechConv()

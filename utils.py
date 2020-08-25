@@ -18,7 +18,7 @@ import numpy as np
 warnings.filterwarnings("ignore")
 
 
-PATH = '/home/mohiitaa/ufonia/phone_number_identification_from_speech/pretrained_model/speech_net_aug.pth.tar'
+PATH ='/home/mohiitaa/ufonia/phone_number_identification_from_speech/pretrained_model/speech_net_aug.pth.tar'
 # device = torch.device("cuda")
 
 def silence_based_conversion(path, n, sil_thresh):  
@@ -62,10 +62,7 @@ def extract_mfcc(in_path, file, fmax, nMel, n):
     plt.xticks([])
     plt.yticks([])
     plt.tight_layout()
-    try:
-        os.system('rm -rf /home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/' + n)
-    except:
-        pass
+
 
     try: 
         os.mkdir('/home/mohiitaa/ufonia/phone_number_identification_from_speech/data/images/'+ n) 
