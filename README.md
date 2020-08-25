@@ -1,7 +1,8 @@
 ### Create the required environment
 
-`conda env create -f environment.yml`
-`conda activate ufo`
+1. `conda env create -f environment.yml`
+
+2. `conda activate ufo`
 
 ### Directory Structure
 
@@ -21,8 +22,9 @@ The directory contains the following folders:
 ### Files
 
 **To run the Web App:**
- `export FLASK_APP=application.py` 
- `flask run`. 
+1. `export FLASK_APP=application.py` 
+ 
+2. `flask run`. 
 
 Then navigate to `http://127.0.0.1:5000/`.
 
